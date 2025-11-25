@@ -1,0 +1,6 @@
+@SyncFlowSaaS.Api_HostAddress = http://localhost:5183
+
+GET {{SyncFlowSaaS.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
