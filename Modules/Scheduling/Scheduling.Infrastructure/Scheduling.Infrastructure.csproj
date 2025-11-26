@@ -7,10 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Shared\Shared.Core\Shared.Core.csproj" />
+    <ProjectReference Include="..\..\..\Shared\Shared.Infrastructure\Shared.Infrastructure.csproj" />
     <ProjectReference Include="..\Scheduling.Application\Scheduling.Application.csproj" />
     <ProjectReference Include="..\Scheduling.Domain\Scheduling.Domain.csproj" />
-    <ProjectReference Include="..\Shared.Core\Shared.Core.csproj" />
-    <ProjectReference Include="..\Shared.Infrastructure\Shared.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

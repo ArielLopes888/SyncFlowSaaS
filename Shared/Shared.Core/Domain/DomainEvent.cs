@@ -3,7 +3,7 @@ using System;
 
 namespace Shared.Core.Domain;
 
-public abstract record DomainEvent : IDomainEvent
+public abstract class DomainEvent : IDomainEvent
 {
     public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
 }

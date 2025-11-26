@@ -1,21 +1,43 @@
+using Scheduling.Infrastructure;
 using Shared.Infrastructure;
+using Shared.Infrastructure.Tenancy;
+using Shared.Core.Abstractions;
+using Scheduling.Application.Handlers;
+using Scheduling.Application.Services;
+using Scheduling.Infrastructure.Services;
+using Shared.Infrastructure.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-
+// Infrastructure (Shared + Module)
 builder.Services.AddSharedInfrastructure(builder.Configuration);
+builder.Services.AddSchedulingInfrastructure(builder.Configuration);
+
+// Multi-tenant
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ITenantProvider, TenantProvider>();
+
+// Domain Event Dispatcher
+builder.Services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+
+// Application services
+builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+builder.Services.AddScoped<ILoyaltyService, LoyaltyService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 
+// Domain handlers
+builder.Services.AddScoped<IHandle<AppointmentCreated>, UpdateAnalyticsHandler>();
+builder.Services.AddScoped<IHandle<AppointmentCreated>, LoyaltyHandler>();
+
+// Web
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -23,6 +45,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Multi-tenant middleware
+app.UseMiddleware<TenantMiddleware>();
 
 app.UseAuthorization();
 

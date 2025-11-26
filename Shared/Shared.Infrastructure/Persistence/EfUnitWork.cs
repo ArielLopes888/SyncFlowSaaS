@@ -1,4 +1,5 @@
 ﻿using Shared.Core.Repositories;
+using Shared.Infrastructure.Events;
 
 namespace Shared.Infrastructure.Persistence;
 
