@@ -5,7 +5,7 @@ using Shared.Core.Abstractions;
 
 namespace Scheduling.Domain.Entities;
 
-public class Appointment : BaseEntity, IAggregateRoot
+public class Appointment : BaseEntity, IAggregateRoot, ITenantEntity
 {
 
     public Guid TenantId { get; private set; }
@@ -43,7 +43,12 @@ public class Appointment : BaseEntity, IAggregateRoot
 
         Status = AppointmentStatus.Created;
 
-        AddDomainEvent(new AppointmentCanceled(this.Id, this.TenantId));
+        AddDomainEvent(new AppointmentCreated(
+            this.Id,
+            this.TenantId,
+            this.ProfessionalId,
+            this.ClientName)
+        );
 
     }
 
@@ -55,4 +60,20 @@ public class Appointment : BaseEntity, IAggregateRoot
         AddDomainEvent(new AppointmentCanceled(this.Id, this.TenantId));
 
     }
+
+    public void Update(
+        DateTime startAt,
+        DateTime endAt,
+        string clientName,
+        string clientPhone)
+        {
+            if (startAt >= endAt)
+                throw new ArgumentException("The end time must be after the start time.");
+
+            StartAt = startAt;
+            EndAt = endAt;
+            ClientName = clientName;
+            Phone = clientPhone;
+        }
+
 }

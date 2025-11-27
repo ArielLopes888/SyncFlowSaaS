@@ -3,13 +3,14 @@ using Scheduling.Domain.Repositories;
 using Shared.Infrastructure.Persistence;
 using Shared.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Scheduling.Infrastructure.Persistence;
 
 namespace Scheduling.Infrastructure.Repositories;
 
 public class ServiceRepository : EfRepository<Service>, IServiceRepository
 {
-    private readonly AppDbContext _db;
-    public ServiceRepository(AppDbContext db) : base(db) => _db = db;
+    private readonly SchedulingDbContext _db;
+    public ServiceRepository(SchedulingDbContext db) : base(db) => _db = db;
 
 
     public async Task<Service?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)

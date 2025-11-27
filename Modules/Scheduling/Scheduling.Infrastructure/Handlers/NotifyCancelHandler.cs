@@ -2,7 +2,7 @@
 using Scheduling.Domain.Events;
 using Shared.Infrastructure.Events;
 
-namespace Scheduling.Application.Handlers
+namespace Scheduling.Infrastructure.Handlers
 {
     public class NotifyCancelHandler : IHandle<AppointmentCanceled>
     {

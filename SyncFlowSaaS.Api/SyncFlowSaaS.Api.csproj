@@ -18,7 +18,6 @@
     <ProjectReference Include="..\Modules\Scheduling\Scheduling.Infrastructure\Scheduling.Infrastructure.csproj" />
     <ProjectReference Include="..\Plataform\Plataform.Identity\Plataform.Identity.csproj" />
     <ProjectReference Include="..\Plataform\Plataform.Tenancy\Plataform.Tenancy.csproj" />
-    <ProjectReference Include="..\Shared\Shared.Core\Shared.Core.csproj" />
     <ProjectReference Include="..\Shared\Shared.Infrastructure\Shared.Infrastructure.csproj" />
   </ItemGroup>
 

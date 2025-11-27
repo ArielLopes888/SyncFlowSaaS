@@ -6,24 +6,23 @@ using System.Linq.Expressions;
 
 namespace Shared.Infrastructure.Repositories;
 
-public class EfReadRepository<T> : IReadRepository<T> where T : class, IEntity
+public class EfReadRepository<T, TContext> : IReadRepository<T>
+    where T : class, IEntity
+    where TContext : DbContext
 {
-    protected readonly AppDbContext _db;
+    protected readonly TContext _db;
 
-    public EfReadRepository(AppDbContext db) => _db = db;
+    public EfReadRepository(TContext db)
+    {
+        _db = db;
+    }
 
     public virtual async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
-    {
-        return await _db.Set<T>().FindAsync(new object[] { id }, cancellationToken);
-    }
+        => await _db.Set<T>().FindAsync(new object[] { id }, cancellationToken);
 
     public virtual async Task<List<T>> ListAsync(CancellationToken cancellationToken = default)
-    {
-        return await _db.Set<T>().ToListAsync(cancellationToken);
-    }
+        => await _db.Set<T>().ToListAsync(cancellationToken);
 
     public virtual async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default)
-    {
-        return await _db.Set<T>().AnyAsync(e => e.Id == id, cancellationToken);
-    }
+        => await _db.Set<T>().AnyAsync(e => e.Id == id, cancellationToken);
 }

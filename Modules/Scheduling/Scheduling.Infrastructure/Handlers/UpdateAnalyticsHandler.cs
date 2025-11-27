@@ -3,7 +3,7 @@ using Scheduling.Domain.Events;
 using Scheduling.Application.Services;
 using Scheduling.Domain.Repositories;
 
-namespace Scheduling.Application.Handlers;
+namespace Scheduling.Infrastructure.Handlers;
 
 public class UpdateAnalyticsHandler : IHandle<AppointmentCreated>
 {

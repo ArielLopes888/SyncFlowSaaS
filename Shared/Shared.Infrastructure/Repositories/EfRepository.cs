@@ -1,17 +1,19 @@
-﻿using Shared.Core.Abstractions;
+﻿using Microsoft.EntityFrameworkCore;
+using Shared.Core.Abstractions;
 using Shared.Core.Repositories;
 using Shared.Infrastructure.Persistence;
 
 namespace Shared.Infrastructure.Repositories;
 
-public class EfRepository<T> : EfReadRepository<T>, IRepository<T> where T : class, IAggregateRoot
+public class EfRepository<T, TContext>
+    : EfReadRepository<T, TContext>, IRepository<T>
+    where T : class, IAggregateRoot
+    where TContext : DbContext
 {
-    public EfRepository(AppDbContext db) : base(db) { }
+    public EfRepository(TContext db) : base(db) { }
 
     public virtual async Task AddAsync(T entity, CancellationToken cancellationToken = default)
-    {
-        await _db.Set<T>().AddAsync(entity, cancellationToken);
-    }
+        => await _db.Set<T>().AddAsync(entity, cancellationToken);
 
     public virtual Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
     {

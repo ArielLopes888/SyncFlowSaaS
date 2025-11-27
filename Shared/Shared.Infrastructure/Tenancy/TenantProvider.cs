@@ -12,7 +12,7 @@ public class TenantProvider : ITenantProvider
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public string GetTenantId()
+    public Guid GetTenantId()
     {
         var tenant =
             _httpContextAccessor.HttpContext?.Items["TenantId"]?.ToString();
@@ -20,6 +20,9 @@ public class TenantProvider : ITenantProvider
         if (string.IsNullOrWhiteSpace(tenant))
             throw new InvalidOperationException("TenantId não encontrado no contexto da requisição.");
 
-        return tenant;
+        if (!Guid.TryParse(tenant, out var tenantId))
+            throw new InvalidOperationException("TenantId no contexto da requisição não é um GUID válido.");
+
+        return tenantId;
     }
 }

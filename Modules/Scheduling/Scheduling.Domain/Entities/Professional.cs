@@ -3,7 +3,7 @@ using Shared.Core.Domain;
 
 namespace Scheduling.Domain.Entities;
 
-public class Professional : BaseEntity, IAggregateRoot
+public class Professional : BaseEntity, IAggregateRoot, ITenantEntity
 {
     public Guid TenantId { get; private set; }
     public string Name { get; private set; }

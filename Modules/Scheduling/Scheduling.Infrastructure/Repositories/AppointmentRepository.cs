@@ -3,26 +3,38 @@ using Scheduling.Domain.Repositories;
 using Shared.Infrastructure.Persistence;
 using Shared.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Scheduling.Infrastructure.Persistence;
 
 namespace Scheduling.Infrastructure.Repositories;
 
 public class AppointmentRepository : EfRepository<Appointment>, IAppointmentRepository
 {
-    private readonly AppDbContext _db;
+    private readonly SchedulingDbContext _db;
 
-    public AppointmentRepository(AppDbContext db) : base(db)
+    public AppointmentRepository(SchedulingDbContext db) : base(db)
     {
         _db = db;
     }
 
-    public async Task<Appointment?> GetByIdWithDetailsAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default)
+    public async Task<Appointment?> GetByIdWithDetailsAsync(
+        Guid tenantId,
+        Guid id,
+        CancellationToken cancellationToken = default)
     {
         return await _db.Set<Appointment>()
                         .AsNoTracking()
-                        .FirstOrDefaultAsync(a => a.TenantId == tenantId && a.Id == id, cancellationToken);
+                        .FirstOrDefaultAsync(a =>
+                            a.TenantId == tenantId &&
+                            a.Id == id,
+                            cancellationToken);
     }
 
-    public async Task<List<Appointment>> GetByProfessionalAndRangeAsync(Guid tenantId, Guid professionalId, DateTime from, DateTime to, CancellationToken cancellationToken = default)
+    public async Task<List<Appointment>> GetByProfessionalAndRangeAsync(
+        Guid tenantId,
+        Guid professionalId,
+        DateTime from,
+        DateTime to,
+        CancellationToken cancellationToken = default)
     {
         return await _db.Set<Appointment>()
                         .AsNoTracking()
@@ -34,23 +46,41 @@ public class AppointmentRepository : EfRepository<Appointment>, IAppointmentRepo
                         .ToListAsync(cancellationToken);
     }
 
-    public async Task<bool> ExistsConflictingAsync(Guid tenantId, Guid professionalId, DateTime start, DateTime end, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsConflictingAsync(
+        Guid tenantId,
+        Guid professionalId,
+        DateTime start,
+        DateTime end,
+        CancellationToken cancellationToken = default)
     {
         return await _db.Set<Appointment>()
-            .AnyAsync(a =>
-                a.TenantId == tenantId &&
-                a.ProfessionalId == professionalId &&
-                (start < a.EndAt && end > a.StartAt),
-                cancellationToken);
+                        .AnyAsync(a =>
+                            a.TenantId == tenantId &&
+                            a.ProfessionalId == professionalId &&
+                            (start < a.EndAt && end > a.StartAt),
+                            cancellationToken);
     }
 
-    public async Task<List<Appointment>> GetByCustomerAsync(Guid tenantId, string clientName, CancellationToken cancellationToken = default)
+    public async Task<List<Appointment>> GetByCustomerAsync(
+        Guid tenantId,
+        string clientName,
+        CancellationToken cancellationToken = default)
     {
         return await _db.Set<Appointment>()
                         .AsNoTracking()
                         .Where(a =>
                             a.TenantId == tenantId &&
-                            a.ClientName.ToLower() == clientName.ToLower())
+                            EF.Functions.Collate(a.ClientName, "SQL_Latin1_General_CP1_CI_AS") == clientName)
+                        .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<Appointment>> GetByTenantAsync(
+        Guid tenantId, 
+        CancellationToken cancellationToken = default)
+    {
+        return await _db.Set<Appointment>()
+                        .AsNoTracking()
+                        .Where(a => a.TenantId == tenantId)
                         .ToListAsync(cancellationToken);
     }
 

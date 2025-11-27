@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Shared.Core.Domain;
-using System.Linq.Expressions;
 using Shared.Core.Abstractions;
+using System.Linq.Expressions;
 
 namespace Shared.Infrastructure.Persistence;
 
@@ -9,53 +8,53 @@ public class AppDbContext : DbContext
 {
     private readonly ITenantProvider _tenantProvider;
 
-    public AppDbContext(
-        DbContextOptions<AppDbContext> opts,
-        ITenantProvider tenantProvider) : base(opts)
+    public AppDbContext(DbContextOptions opts, ITenantProvider tenantProvider)
+        : base(opts)
     {
         _tenantProvider = tenantProvider;
     }
+
+    // --------------------------
+    // EXPOSED FOR EF FILTER
+    // --------------------------
+    public Guid CurrentTenantId => _tenantProvider.GetTenantId();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // Aplica mapeamentos modularizados
+        // Applies Modular EF Configurations
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
 
-        // Aplica filtro Multi-Tenant global
         ApplyTenantGlobalFilter(modelBuilder);
-
-        // Configura automaticamente o TenantId em todas as entidades do domínio que precisarem
         ConfigureTenantConvention(modelBuilder);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         ApplyTenantIdToNewEntities();
-
         return await base.SaveChangesAsync(cancellationToken);
     }
 
-    // -------------------------------------------------------------------------
-    //  MULTI-TENANT IMPLEMENTAÇÃO
-    // -------------------------------------------------------------------------
+    // -------------------------------------------------------
+    // MULTI-TENANT IMPLEMENTATION
+    // -------------------------------------------------------
 
     private void ApplyTenantGlobalFilter(ModelBuilder modelBuilder)
     {
-        var tenantId = _tenantProvider.GetTenantId();
-
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
-            // Aplica filtro apenas em entidades que possuem TenantId
-            if (entityType.ClrType.IsAssignableTo(typeof(ITenantEntity)))
+            if (typeof(ITenantEntity).IsAssignableFrom(entityType.ClrType))
             {
                 var parameter = Expression.Parameter(entityType.ClrType, "e");
 
                 var filter = Expression.Lambda(
                     Expression.Equal(
                         Expression.Property(parameter, nameof(ITenantEntity.TenantId)),
-                        Expression.Constant(tenantId)
+                        Expression.Property(
+                            Expression.Constant(this),
+                            nameof(CurrentTenantId)
+                        )
                     ),
                     parameter
                 );
@@ -72,8 +71,9 @@ public class AppDbContext : DbContext
             if (typeof(ITenantEntity).IsAssignableFrom(entity.ClrType))
             {
                 modelBuilder.Entity(entity.ClrType)
-                    .Property<string>(nameof(ITenantEntity.TenantId))
-                    .IsRequired();
+                    .Property<Guid>(nameof(ITenantEntity.TenantId))
+                    .IsRequired()
+                    .ValueGeneratedNever();
             }
         }
     }
@@ -82,12 +82,16 @@ public class AppDbContext : DbContext
     {
         var tenantId = _tenantProvider.GetTenantId();
 
+        if (tenantId == Guid.Empty)
+            throw new InvalidOperationException("TenantId não resolvido no TenantProvider.");
+
         foreach (var entry in ChangeTracker.Entries())
         {
-            if (entry.State == EntityState.Added &&
-                entry.Entity is ITenantEntity tenantEntity)
+            if (entry.State == EntityState.Added && entry.Entity is ITenantEntity)
             {
-                tenantEntity.TenantId = tenantId;
+                entry.Entity.GetType()
+                    .GetProperty(nameof(ITenantEntity.TenantId))
+                    ?.SetValue(entry.Entity, tenantId);
             }
         }
     }

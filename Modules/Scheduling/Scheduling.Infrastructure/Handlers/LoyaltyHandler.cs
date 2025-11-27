@@ -2,7 +2,7 @@
 using Scheduling.Domain.Events;
 using Scheduling.Application.Services;
 
-namespace Scheduling.Application.Handlers;
+namespace Scheduling.Infrastructure.Handlers;
 
 public class LoyaltyHandler : IHandle<AppointmentCreated>
 {

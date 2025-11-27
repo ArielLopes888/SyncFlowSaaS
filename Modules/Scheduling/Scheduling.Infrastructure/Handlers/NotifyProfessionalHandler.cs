@@ -2,7 +2,7 @@
 using Shared.Infrastructure.Events;
 using Scheduling.Application.Services;
 
-namespace Scheduling.Application.Handlers;
+namespace Scheduling.Infrastructure.Handlers;
 
 public class NotifyProfessionalHandler : IHandle<AppointmentCreated>
 {
