@@ -27,24 +27,22 @@ public static class DependencyInjection
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddSingleton<IGuidProvider, GuidProvider>();
 
-        // DbContext
+        // DbContext do Shared
         services.AddDbContext<AppDbContext>(options =>
         {
             var inMemory = configuration.GetValue<bool>("UseInMemoryDatabase");
+
             if (inMemory)
                 options.UseInMemoryDatabase("dev-db");
             else
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
         });
 
-        // Repositories
-        services.AddScoped(typeof(IReadRepository<>), typeof(EfReadRepository<>));
-        services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
 
-        // Unit of Work
+        // Unit of Work shared
         services.AddScoped<IUnitOfWork, EfUnitOfWork>();
 
-        // Event Dispatcher
+        // Domain Events
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
 
         // Observability
