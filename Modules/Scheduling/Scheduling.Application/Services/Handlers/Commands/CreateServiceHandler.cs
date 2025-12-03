@@ -1,22 +1,22 @@
-﻿using Scheduling.Application.Abstractions.Persistence;
+﻿using Scheduling.Application.Abstractions.Handlers;
 using Scheduling.Application.Services.Commands;
 using Scheduling.Domain.Entities;
-using Scheduling.Application.Abstractions.Handlers;
+using Scheduling.Domain.Repositories; 
 using Shared.Core.Abstractions;
+
 namespace Scheduling.Application.Services.Handlers.Commands
 {
     public class CreateServiceHandler : ICommandHandler<CreateServiceCommand, Guid>
     {
-        private readonly ISchedulingDbContext _db;
+        private readonly IServiceRepository _serviceRepo; 
         private readonly ITenantProvider _tenantProvider;
 
         public CreateServiceHandler(
-            ISchedulingDbContext db,
-            ITenantProvider tenant
-            )
+            IServiceRepository serviceRepo, 
+            ITenantProvider tenantProvider)
         {
-            _db = db;
-            _tenantProvider = tenant;
+            _serviceRepo = serviceRepo;
+            _tenantProvider = tenantProvider;
         }
 
         public async Task<Guid> HandleAsync(CreateServiceCommand cmd, CancellationToken ct = default)
@@ -24,11 +24,8 @@ namespace Scheduling.Application.Services.Handlers.Commands
             var tenantId = _tenantProvider.GetTenantId();
             var service = new Service(tenantId, cmd.Name, cmd.Price, cmd.DurationMinutes);
 
-            _db.Services.Add(service);
-            await _db.SaveChangesAsync(ct);
-
+            await _serviceRepo.AddAsync(service, ct); 
             return service.Id;
         }
     }
-
 }

@@ -5,6 +5,4 @@
         decimal Price, 
         int DurationMinutes
      );
-
-
 }

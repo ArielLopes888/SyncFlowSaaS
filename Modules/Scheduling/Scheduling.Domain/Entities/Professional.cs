@@ -1,5 +1,6 @@
 ﻿using Shared.Core.Abstractions;
 using Shared.Core.Domain;
+using System.Diagnostics;
 
 namespace Scheduling.Domain.Entities;
 
@@ -15,6 +16,12 @@ public class Professional : BaseEntity, IAggregateRoot, ITenantEntity
     {
         TenantId = tenantId;
         Name = name ?? throw new ArgumentNullException(nameof(name));
+        Specialty = specialty;
+    }
+
+    public void Update(string name, string specialty)
+    {
+        Name = name;
         Specialty = specialty;
     }
 }

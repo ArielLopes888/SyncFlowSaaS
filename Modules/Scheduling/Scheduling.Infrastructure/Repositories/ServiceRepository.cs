@@ -3,18 +3,15 @@ using Scheduling.Domain.Repositories;
 using Shared.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Scheduling.Infrastructure.Persistence;
+using Polly;
 
 namespace Scheduling.Infrastructure.Repositories;
 
 public class ServiceRepository
     : EfRepository<Service, SchedulingDbContext>, IServiceRepository
 {
-    private readonly SchedulingDbContext _db;
 
-    public ServiceRepository(SchedulingDbContext db) : base(db)
-    {
-        _db = db;
-    }
+    public ServiceRepository(SchedulingDbContext db) : base(db){}
 
     public async Task<Service?> GetByIdAsync(
         Guid tenantId,
@@ -26,5 +23,15 @@ public class ServiceRepository
                         .FirstOrDefaultAsync(
                             s => s.Id == id && s.TenantId == tenantId,
                             cancellationToken);
+    }
+
+    public async Task<List<Service>> GetByTenantAsync(
+        Guid tenantId, 
+        CancellationToken cancellationToken = default)
+    {
+        return await _db.Services
+            .AsNoTracking()
+            .Where(s => s.TenantId == tenantId)
+            .ToListAsync(cancellationToken);
     }
 }

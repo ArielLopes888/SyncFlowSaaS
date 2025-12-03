@@ -3,7 +3,6 @@ using Scheduling.Application.Abstractions;
 using Scheduling.Application.Appointments.Commands;
 using Scheduling.Application.Appointments.Queries;
 using Scheduling.Domain.Entities;
-using Shared.Core.Abstractions;
 
 namespace SyncFlowSaaS.Api.Controllers;
 
@@ -54,8 +53,8 @@ public class AppointmentsController : ControllerBase
     [HttpGet("professional/{professionalId}")]
     public async Task<IActionResult> ListByProfessional(Guid professionalId, DateTime from, DateTime to)
     {
-        var result = await _dispatcher.QueryAsync<ListByProfessionalQuery, List<Appointment>>(
-            new ListByProfessionalQuery(professionalId, from, to)
+        var result = await _dispatcher.QueryAsync<ListAppointmentsByProfessionalQuery, List<Appointment>>(
+            new ListAppointmentsByProfessionalQuery(professionalId, from, to)
         );
         return Ok(result);
     }
@@ -63,8 +62,8 @@ public class AppointmentsController : ControllerBase
     [HttpGet("customer")]
     public async Task<IActionResult> ListByCustomer([FromQuery] string clientName)
     {
-        var result = await _dispatcher.QueryAsync<ListByCustomerQuery, List<Appointment>>(
-            new ListByCustomerQuery(clientName) 
+        var result = await _dispatcher.QueryAsync<ListAppointmentsByCustomerQuery, List<Appointment>>(
+            new ListAppointmentsByCustomerQuery(clientName) 
         );
         return Ok(result);
     }

@@ -1,34 +1,28 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Scheduling.Application.Abstractions.Handlers;
-using Scheduling.Application.Abstractions.Persistence;
+﻿using Scheduling.Application.Abstractions.Handlers;
 using Scheduling.Application.Services.Queries;
 using Scheduling.Domain.Entities;
+using Scheduling.Domain.Repositories;
 using Shared.Core.Abstractions;
-using Shared.Core.Providers;
 
 namespace Scheduling.Application.Services.Handlers.Queries
 {
     public class GetServiceByIdHandler : IQueryHandler<GetServiceByIdQuery, Service?>
     {
-        private readonly ISchedulingDbContext _db;
+        private readonly IServiceRepository _serviceRepo;
         private readonly ITenantProvider _tenantProvider;
 
-        public GetServiceByIdHandler(ISchedulingDbContext db, ITenantProvider tenantProvider)
+        public GetServiceByIdHandler(
+            IServiceRepository serviceRepo,
+            ITenantProvider tenantProvider)
         {
-            _db = db;
+            _serviceRepo = serviceRepo;
             _tenantProvider = tenantProvider;
         }
 
-        public Task<Service?> HandleAsync(GetServiceByIdQuery _, CancellationToken ct = default)
+        public async Task<Service?> HandleAsync(GetServiceByIdQuery query, CancellationToken ct = default)
         {
             var tenantId = _tenantProvider.GetTenantId();
-
-            return _db.Services
-                .AsNoTracking()
-                .FirstOrDefaultAsync(
-                    x => x.Id == _.ServiceId && x.TenantId == tenantId,
-                    ct
-                );
+            return await _serviceRepo.GetByIdAsync(query.ServiceId, tenantId, ct);
         }
     }
 }

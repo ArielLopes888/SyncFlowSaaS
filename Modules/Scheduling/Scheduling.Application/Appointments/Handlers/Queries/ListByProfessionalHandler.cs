@@ -6,7 +6,7 @@ using Shared.Core.Abstractions;
 
 namespace Scheduling.Application.Appointments.Handlers;
 
-public class ListByProfessionalHandler : IQueryHandler<ListByProfessionalQuery, List<Appointment>>
+public class ListByProfessionalHandler : IQueryHandler<ListAppointmentsByProfessionalQuery, List<Appointment>>
 {
     private readonly IAppointmentRepository _repo;
     private readonly ITenantProvider _tenantProvider;
@@ -19,7 +19,7 @@ public class ListByProfessionalHandler : IQueryHandler<ListByProfessionalQuery, 
         _tenantProvider = tenant;
     }
 
-    public Task<List<Appointment>> HandleAsync(ListByProfessionalQuery query, CancellationToken ct = default)
+    public Task<List<Appointment>> HandleAsync(ListAppointmentsByProfessionalQuery query, CancellationToken ct = default)
     {
         var tenantId = _tenantProvider.GetTenantId();
         return _repo.GetByProfessionalAndRangeAsync(

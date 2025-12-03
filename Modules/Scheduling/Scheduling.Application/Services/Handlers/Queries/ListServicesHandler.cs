@@ -1,34 +1,28 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Scheduling.Application.Abstractions.Handlers;
-using Scheduling.Application.Abstractions.Persistence;
+﻿using Scheduling.Application.Abstractions.Handlers;
 using Scheduling.Application.Services.Queries;
 using Scheduling.Domain.Entities;
+using Scheduling.Domain.Repositories;
 using Shared.Core.Abstractions;
-using Shared.Core.Providers;
 
 namespace Scheduling.Application.Services.Handlers.Queries
 {
     public class ListServicesHandler : IQueryHandler<ListServicesQuery, List<Service>>
     {
-        private readonly ISchedulingDbContext _db;
+        private readonly IServiceRepository _serviceRepo;
         private readonly ITenantProvider _tenantProvider;
 
         public ListServicesHandler(
-            ISchedulingDbContext db,
+            IServiceRepository serviceRepo,
             ITenantProvider tenantProvider)
         {
-            _db = db;
+            _serviceRepo = serviceRepo;
             _tenantProvider = tenantProvider;
         }
 
         public async Task<List<Service>> HandleAsync(ListServicesQuery query, CancellationToken ct = default)
         {
             var tenantId = _tenantProvider.GetTenantId();
-
-            return await _db.Services
-                .AsNoTracking()
-                .Where(s => s.TenantId == tenantId)
-                .ToListAsync(ct);
+            return await _serviceRepo.GetByTenantAsync(tenantId, ct);
         }
     }
 }

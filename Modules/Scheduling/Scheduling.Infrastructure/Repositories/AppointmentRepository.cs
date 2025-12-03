@@ -9,12 +9,9 @@ namespace Scheduling.Infrastructure.Repositories;
 public class AppointmentRepository
     : EfRepository<Appointment, SchedulingDbContext>, IAppointmentRepository
 {
-    private readonly SchedulingDbContext _db;
 
-    public AppointmentRepository(SchedulingDbContext db) : base(db)
-    {
-        _db = db;
-    }
+
+    public AppointmentRepository(SchedulingDbContext db) : base(db){}
 
     public async Task<Appointment?> GetByIdWithDetailsAsync(
         Guid tenantId,

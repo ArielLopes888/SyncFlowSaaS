@@ -5,5 +5,17 @@ namespace Scheduling.Domain.Repositories;
 
 public interface IProfessionalRepository : IRepository<Professional>
 {
-    Task<Professional?> GetByIdAsync(Guid tenantId, Guid id, CancellationToken cancellationToken = default);
+    Task<Professional?> GetByIdAsync(
+        Guid tenantId,
+        Guid id,
+        CancellationToken cancellationToken = default);
+
+    Task<List<Professional>> GetByTenantAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> ExistsAsync(
+        Guid tenantId,
+        Guid id,
+        CancellationToken cancellationToken = default);
 }

@@ -7,7 +7,7 @@ using Shared.Core.Providers;
 
 namespace Scheduling.Application.Appointments.Handlers.Queries;
 
-public class ListByCustomerHandler : IQueryHandler<ListByCustomerQuery, List<Appointment>>
+public class ListByCustomerHandler : IQueryHandler<ListAppointmentsByCustomerQuery, List<Appointment>>
 {
     private readonly IAppointmentRepository _repo;
     private readonly ITenantProvider _tenantProvider;
@@ -20,7 +20,7 @@ public class ListByCustomerHandler : IQueryHandler<ListByCustomerQuery, List<App
         _tenantProvider = tenantProvider;
     }
 
-    public Task<List<Appointment>> HandleAsync(ListByCustomerQuery _, CancellationToken ct = default)
+    public Task<List<Appointment>> HandleAsync(ListAppointmentsByCustomerQuery _, CancellationToken ct = default)
     {
         var tenantId = _tenantProvider.GetTenantId();
 

@@ -11,6 +11,7 @@ public class EfReadRepository<T, TContext> : IReadRepository<T>
     where TContext : DbContext
 {
     protected readonly TContext _db;
+    protected DbSet<T> DbSet => _db.Set<T>();
 
     public EfReadRepository(TContext db)
     {
