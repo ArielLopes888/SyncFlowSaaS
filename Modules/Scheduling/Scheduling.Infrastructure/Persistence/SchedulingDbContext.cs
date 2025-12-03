@@ -18,6 +18,8 @@ public class SchedulingDbContext : AppDbContext
     public DbSet<Appointment> Appointments => Set<Appointment>();
     public DbSet<Professional> Professionals => Set<Professional>();
     public DbSet<Schedule> Schedules => Set<Schedule>();
+    public DbSet<ScheduleOverride> ScheduleOverrides => Set<ScheduleOverride>();
+    public DbSet<TimeOff> TimeOffs => Set<TimeOff>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -53,7 +55,7 @@ public class SchedulingDbContext : AppDbContext
         {
             cfg.ToTable("Schedules");
             cfg.HasKey(x => x.Id);
-
+            cfg.Property(x => x.TenantId).IsRequired();
             cfg.Property(x => x.Day).IsRequired();
             cfg.Property(x => x.Start).IsRequired();
             cfg.Property(x => x.End).IsRequired();
@@ -62,6 +64,16 @@ public class SchedulingDbContext : AppDbContext
             cfg.HasOne<Professional>()
                .WithMany()
                .HasForeignKey(x => x.ProfessionalId);
+
+            cfg.HasMany(x => x.Overrides)
+               .WithOne()
+               .HasForeignKey(o => o.ScheduleId)
+               .OnDelete(DeleteBehavior.Cascade);
+
+            cfg.HasMany(x => x.TimeOffs)
+                .WithOne()
+                .HasForeignKey(t => t.ScheduleId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         // APPOINTMENT
@@ -81,5 +93,6 @@ public class SchedulingDbContext : AppDbContext
                 .WithMany()
                 .HasForeignKey(x => x.ServiceId);
         });
+
     }
 }
