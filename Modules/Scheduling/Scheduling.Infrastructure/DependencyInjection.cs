@@ -8,20 +8,22 @@ using Scheduling.Infrastructure.Persistence;
 using Scheduling.Infrastructure.Repositories;
 using Shared.Infrastructure.Events;
 
+namespace Scheduling.Infrastructure;
+
 public static class DependencyInjection
 {
-    public static IServiceCollection AddSchedulingInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddSchedulingInfrastructure(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
-        // DbContext
+        // DbContext específico do Scheduling
         services.AddDbContext<SchedulingDbContext>(options =>
-        {
-            var inMemory = configuration.GetValue<bool>("UseInMemoryDatabase");
-
-            if (inMemory)
-                options.UseInMemoryDatabase("scheduling-db");
-            else
-                options.UseSqlServer(configuration.GetConnectionString("SchedulingConnection"));
-        });
+            options.UseNpgsql(
+                configuration.GetConnectionString("SchedulingConnection"),
+                sql =>
+                {
+                    sql.MigrationsAssembly(typeof(SchedulingDbContext).Assembly.FullName);
+                }));
 
         // Repositórios
         services.AddScoped<IAppointmentRepository, AppointmentRepository>();
@@ -29,7 +31,7 @@ public static class DependencyInjection
         services.AddScoped<IServiceRepository, ServiceRepository>();
         services.AddScoped<IScheduleRepository, ScheduleRepository>();
 
-        // Domain Events
+        // Domain Events – handlers múltiplos para o mesmo evento
         services.AddScoped<IHandle<AppointmentCreated>, NotifyProfessionalHandler>();
         services.AddScoped<IHandle<AppointmentCreated>, UpdateAnalyticsHandler>();
         services.AddScoped<IHandle<AppointmentCreated>, LoyaltyHandler>();

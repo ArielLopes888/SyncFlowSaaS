@@ -15,9 +15,11 @@ namespace Shared.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddSharedInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddSharedInfrastructure(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
-        // HttpContext for TenantProvider
+        // HttpContext
         services.AddHttpContextAccessor();
 
         // Tenant Provider
@@ -27,17 +29,14 @@ public static class DependencyInjection
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddSingleton<IGuidProvider, GuidProvider>();
 
-        // DbContext do Shared
+        // DbContext do Shared (Somente PostgreSQL)
         services.AddDbContext<AppDbContext>(options =>
-        {
-            var inMemory = configuration.GetValue<bool>("UseInMemoryDatabase");
-
-            if (inMemory)
-                options.UseInMemoryDatabase("dev-db");
-            else
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
-        });
-
+            options.UseNpgsql(
+                configuration.GetConnectionString("SharedConnection"),
+                sql =>
+                {
+                    sql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
+                }));
 
         // Unit of Work shared
         services.AddScoped<IUnitOfWork, EfUnitOfWork>();
