@@ -8,7 +8,7 @@ namespace Scheduling.Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<Service> builder)
         {
-            builder.ToTable("services");
+            builder.ToTable("Services");
 
             builder.HasKey(x => x.Id);
 

@@ -18,9 +18,21 @@ public class ScheduleOverrideConfiguration : IEntityTypeConfiguration<ScheduleOv
         builder.Property(x => x.Date)
             .IsRequired();
 
-        builder.Property(x => x.Start);
-        builder.Property(x => x.End);
+        builder.Property(x => x.Start)
+            .HasColumnType("time")        
+            .IsRequired(false);
+
+        builder.Property(x => x.End)
+            .HasColumnType("time")
+            .IsRequired(false);
+
         builder.Property(x => x.IsClosed)
             .IsRequired();
+
+     
+        builder.HasOne<Schedule>()
+            .WithMany(s => s.Overrides)
+            .HasForeignKey(x => x.ScheduleId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

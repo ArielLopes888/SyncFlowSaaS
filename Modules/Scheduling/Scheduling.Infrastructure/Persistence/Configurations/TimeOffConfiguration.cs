@@ -16,9 +16,17 @@ public class TimeOffConfiguration : IEntityTypeConfiguration<TimeOff>
             .IsRequired();
 
         builder.Property(x => x.StartDate)
+            .HasColumnType("datetime2")
             .IsRequired();
 
         builder.Property(x => x.EndDate)
+            .HasColumnType("datetime2")
             .IsRequired();
+
+
+        builder.HasOne<Schedule>()
+            .WithMany(s => s.TimeOffs)
+            .HasForeignKey(x => x.ScheduleId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
